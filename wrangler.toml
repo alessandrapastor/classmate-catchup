@@ -1,8 +1,0 @@
-name = "classmate-catchup"
-compatibility_date = "2025-05-01"
-main = "worker/index.js"     
-
-[[d1_databases]]
-binding = "DB"
-database_name = "classmate-catchup-db"
-database_id = "1cc65fd5-25fb-4f4b-ae66-c30d9eaa7125"
