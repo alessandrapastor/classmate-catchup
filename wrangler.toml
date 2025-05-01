@@ -1,6 +1,6 @@
 name = "classmate-catchup"
+main = "worker/index.js"
 compatibility_date = "2025-05-01"
-main = "worker/index.js"     
 
 [[d1_databases]]
 binding = "DB"
