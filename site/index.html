@@ -1,35 +1,76 @@
-<script>
-  async function fetchStatuses() {
-    const res = await fetch('https://classmate-catchup.alessandra-pastor.workers.dev/api/statuses');
-    const data = await res.json();
-    const board = document.getElementById('status-board');
-    board.innerHTML = data.map(entry => `
-      <div>
-        <strong>${entry.name}</strong> (${entry.course}) - ${entry.type}<br>
-        <em>${entry.message}</em><br>
-        <small>${entry.timestamp}</small>
-        <hr>
-      </div>
-    `).join('');
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classmate Catch-Up</title>
+</head>
+<body>
+  <h1>Classmate Catch-Up Board</h1>
 
-  document.getElementById('status-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = new FormData(e.target);
-    const payload = {
-      name: form.get('name'),
-      course: form.get('course'),
-      type: form.get('type'),
-      message: form.get('message'),
-    };
-    await fetch('https://classmate-catchup.alessandra-pastor.workers.dev/api/statuses', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+  <form id="status-form">
+    <input type="text" name="name" placeholder="Your name" required><br>
+    <input type="text" name="course" placeholder="Course (e.g., CS101)" required><br>
+    <select name="type" required>
+      <option value="">Select status</option>
+      <option value="Need Help">Missed Class / Need Help</option>
+      <option value="Available">Available to Study</option>
+      <option value="Busy">Busy Today</option>
+    </select><br>
+    <textarea name="message" placeholder="Write your message..." required></textarea><br>
+    <button type="submit">Post Status</button>
+  </form>
+
+  <h2>Current Posts</h2>
+  <div id="status-board">Loading posts...</div>
+
+  <script>
+    const API_URL = "https://classmate-catchup.alessandra-pastor.workers.dev/api/statuses";
+
+    async function fetchStatuses() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        const board = document.getElementById('status-board');
+        board.innerHTML = data.map(entry => `
+          <div>
+            <strong>${entry.name}</strong> (${entry.course}) - ${entry.type}<br>
+            <em>${entry.message}</em><br>
+            <small>${entry.timestamp}</small>
+            <hr>
+          </div>
+        `).join('');
+      } catch (err) {
+        document.getElementById('status-board').innerText = 'Failed to load posts.';
+        console.error('Error fetching statuses:', err);
+      }
+    }
+
+    document.getElementById('status-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const payload = {
+        name: form.get('name'),
+        course: form.get('course'),
+        type: form.get('type'),
+        message: form.get('message'),
+      };
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        e.target.reset();
+        fetchStatuses();
+      } catch (err) {
+        alert('Failed to post status. Try again later.');
+        console.error('Error posting status:', err);
+      }
     });
-    e.target.reset();
-    fetchStatuses();
-  });
 
-  fetchStatuses();
-</script>
+    fetchStatuses();
+  </script>
+</body>
+</html>
+
